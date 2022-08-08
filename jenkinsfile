@@ -1,43 +1,20 @@
-pipeline
+node('built-in')
 {
-    agent any
-    stages
+    stage('ContinuousDownload')
     {
-        stage('continousdownload')
-        {
-            steps
-            {
-                git 'https://github.com/intelliqittrainings/maven.git'
-            }
-        }
-        stage('continousbuild')
-        {
-            steps
-            {
-                sh 'mvn package'
-            }
-        }
-        stage('continousdeployment')
-        {
-            steps
-            {
-                sh 'scp /home/ubuntu/.jenkins/workspace/Declarativepipeline/webapp/target/webapp.war ubuntu@172.31.16.136:/var/lib/tomcat9/webapps/testwebapp.war'
-            }
-        }
-        stage('ContinuousTesting')
-        {
-            steps
-            {
-                git 'https://github.com/intelliqittrainings/FunctionalTesting.git'
-            }
-        }
-     }
-}     
-           
-
-
-
-
-
-
+        git 'https://github.com/intelliqittrainings/maven.git'
+    }
+    stage('ContinuousBuild')
+    {
+        sh 'mvn package'
+    }
+    stage('ContinuousDeployment')
+    {
+        deploy adapters: [tomcat9(credentialsId: '7f12e90a-2295-43b0-a93f-59260ff6b825', path: '', url: 'http://172.31.16.136:8080')], contextPath: 'testapp', war: '**/*.war'
+    }
+    stage('ContinuousTesting')
+    {
+        git 'https://github.com/intelliqittrainings/FunctionalTesting.git'
+    }   
+}    
 
